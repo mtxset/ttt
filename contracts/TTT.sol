@@ -7,6 +7,7 @@ contract TTT
     
     address _player1;
     address _player2;
+    address _lastWinner;
 
     bool _openSlots = true;
     bool _gameInProgress = false;
@@ -73,6 +74,7 @@ contract TTT
         _openSlots = true;
         _gameInProgress = false;
 
+        _lastWinner = GetWinnerAddress();
         delete _player1;
         delete _player2;
 
@@ -83,11 +85,16 @@ contract TTT
     CheckIfPlayersTurn
     CheckIfLegalMove(place)
     {
+        _board[place - 1] = _playerTurn;
+
         _winner = LookForWinner();
         
-        if (_winner) EndGame();
+        if (_winner != 0) 
+        { 
+            EndGame();
+            return;
+        }
 
-        _board[place - 1] = _playerTurn;
         TogglePlayerTurn();
     }
     
@@ -109,19 +116,25 @@ contract TTT
                 _board[b[0]] == _board[b[1]] && 
                 _board[b[0]] == _board[b[2]])
 
-            return board[b[0]]; 
+            return _board[b[0]]; 
         }
 
         return 0;
     } 
 
-    function GetWinnerAddress() public constant
-    return (address)
+    function GetLastWinnerAddress() public constant
+    returns (address)
+    {
+        return _lastWinner;
+    }
+
+    function GetWinnerAddress() private 
+    returns (address)
     {
         if (_winner == 1)
-            return = _player1;
+            return _player1;
         else if (_winner == 2)
-            return = _player2;
+            return _player2;
 
         return 0x0;
     }
@@ -130,7 +143,7 @@ contract TTT
     returns(string, string, string) 
     {
         if (_winner > 0)
-            return ("Check Winner", "Check Winner", "Check Winner" );
+            return ("Check Last Winner", "GetLastWinnerAddress", "GG WP" );
 
         bytes[3] memory rows;
         rows[0] = new bytes(3);
@@ -160,7 +173,7 @@ contract TTT
         require(place > 0);
         require(place <= 9);
 
-        require(_board[place] == 0);
+        require(_board[place - 1] == 0);
         _;
     }
 
