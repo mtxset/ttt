@@ -28,3 +28,9 @@ Run
     truffle compile
     truffle migrate
     truffle test
+
+Bugs
+====
+
+- Game hangs if one player disconnects
+- Game hangs if no turn is made

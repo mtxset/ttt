@@ -8,7 +8,6 @@
         "outDir": "test",
         "rootDir": "tsTests",
         "suppressImplicitAnyIndexErrors": true,
-        "sourceMap": true,
-        "suppressImplicitAnyIndexErrors": true
+        "sourceMap": true
     }
 }
