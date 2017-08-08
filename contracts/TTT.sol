@@ -15,6 +15,8 @@ contract TTT
     uint8 _playerTurn;
     uint _winner;
 
+    uint _ticketPrice =  3 * 10**15; // 0.003 Ethereum (~1 dollah)
+
     uint[][] _winStates = [[0,1,2],[3,4,5],[6,7,8], 
                           [0,3,6],[1,4,7],[2,5,8], 
                           [0,4,8],[2,4,6]];
@@ -23,6 +25,10 @@ contract TTT
     {
         _owner = msg.sender;
     }
+    
+
+    // Disallows direct send
+    function () external { } 
     
     function Disconnect() public
     {
@@ -33,10 +39,11 @@ contract TTT
             delete _player2;
     }
 
-    function JoinGame() public
+    function JoinGame() public payable
     CheckForOpenSlots
     CheckIfNoGames
     CheckIfUniquePlayer
+    CheckIfEnoughForTicket
     CheckIf2PlayersConnected
     {
         if (!FillSlot(msg.sender))
@@ -165,6 +172,12 @@ contract TTT
         }
         
         return (string(rows[0]), string(rows[1]), string(rows[2]));
+    }
+
+    modifier CheckIfEnoughForTicket()
+    {
+        assert(_ticketPrice == msg.value);
+        _;
     }
 
     // Checks if 0-9 and it not occupied
