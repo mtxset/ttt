@@ -42,6 +42,9 @@ var assert = require("assert");
 var player1, player2, thirdWheel;
 var ttt = null;
 var ticketPrice = 3 * Math.pow(10, 15);
+function checkBalance(addr) {
+    return web3.eth.getBalance(addr);
+}
 contract("TTT Payable", function (accounts) {
     before(function () { return __awaiter(_this, void 0, void 0, function () {
         return __generator(this, function (_a) {
@@ -57,24 +60,33 @@ contract("TTT Payable", function (accounts) {
         });
     }); });
     contract("Players joining", function () {
-        it("2 Players should join ", function () { return __awaiter(_this, void 0, void 0, function () {
-            var _a, _b, _c, _d;
-            return __generator(this, function (_e) {
-                switch (_e.label) {
-                    case 0: return [4 /*yield*/, ttt.JoinGame({ from: player1, value: ticketPrice })];
-                    case 1:
-                        _e.sent();
+        it("2 Players should join and contract balance increase", function () { return __awaiter(_this, void 0, void 0, function () {
+            var _a, _b, _c, _d, _e, _f, _g, _h;
+            return __generator(this, function (_j) {
+                switch (_j.label) {
+                    case 0:
                         _b = (_a = assert).equal;
-                        return [4 /*yield*/, ttt.Player1()];
+                        return [4 /*yield*/, checkBalance(ttt.address)];
+                    case 1:
+                        _b.apply(_a, [_j.sent(), 0, "Balances should be 0"]);
+                        return [4 /*yield*/, ttt.JoinGame({ from: player1, value: ticketPrice })];
                     case 2:
-                        _b.apply(_a, [_e.sent(), player1, "Addresses should be equal"]);
-                        return [4 /*yield*/, ttt.JoinGame({ from: player2, value: ticketPrice })];
-                    case 3:
-                        _e.sent();
+                        _j.sent();
                         _d = (_c = assert).equal;
-                        return [4 /*yield*/, ttt.Player2()];
+                        return [4 /*yield*/, ttt.Player1()];
+                    case 3:
+                        _d.apply(_c, [_j.sent(), player1, "Addresses should be equal"]);
+                        return [4 /*yield*/, ttt.JoinGame({ from: player2, value: ticketPrice })];
                     case 4:
-                        _d.apply(_c, [_e.sent(), player2, "Addresses should be equal"]);
+                        _j.sent();
+                        _f = (_e = assert).equal;
+                        return [4 /*yield*/, ttt.Player2()];
+                    case 5:
+                        _f.apply(_e, [_j.sent(), player2, "Addresses should be equal"]);
+                        _h = (_g = assert).equal;
+                        return [4 /*yield*/, checkBalance(ttt.address)];
+                    case 6:
+                        _h.apply(_g, [_j.sent(), ticketPrice * 2, "Balances should be 0"]);
                         return [2 /*return*/];
                 }
             });
@@ -147,30 +159,30 @@ contract("TTT Payable", function (accounts) {
         var _this = this;
         return __generator(this, function (_a) {
             it("Should play full game", function () { return __awaiter(_this, void 0, void 0, function () {
-                var _a, _b, _c, _d, _e, _f, gameState, _g, _h;
-                return __generator(this, function (_j) {
-                    switch (_j.label) {
+                var _a, _b, _c, _d, _e, _f, gameState, balance, _g, _h, _j, _k;
+                return __generator(this, function (_l) {
+                    switch (_l.label) {
                         case 0: return [4 /*yield*/, ttt.JoinGame({ from: player1, value: ticketPrice })];
                         case 1:
-                            _j.sent();
+                            _l.sent();
                             return [4 /*yield*/, ttt.JoinGame({ from: player2, value: ticketPrice })];
                         case 2:
-                            _j.sent();
+                            _l.sent();
                             _b = (_a = assert).equal;
                             return [4 /*yield*/, ttt.Player1()];
                         case 3:
-                            _b.apply(_a, [_j.sent(), player1, "Addresses should be equal"]);
+                            _b.apply(_a, [_l.sent(), player1, "Addresses should be equal"]);
                             _d = (_c = assert).equal;
                             return [4 /*yield*/, ttt.Player2()];
                         case 4:
-                            _d.apply(_c, [_j.sent(), player2, "Addresses should be equal"]);
+                            _d.apply(_c, [_l.sent(), player2, "Addresses should be equal"]);
                             _f = (_e = assert).equal;
                             return [4 /*yield*/, ttt.WaitingForPlayersMove()];
                         case 5:
-                            _f.apply(_e, [_j.sent(), player1, "Addresses should match"]);
+                            _f.apply(_e, [_l.sent(), player1, "Addresses should match"]);
                             return [4 /*yield*/, ttt.GameState()];
                         case 6:
-                            gameState = _j.sent();
+                            gameState = _l.sent();
                             assert.equal(gameState[0], "---");
                             assert.equal(gameState[1], "---");
                             assert.equal(gameState[2], "---");
@@ -178,41 +190,57 @@ contract("TTT Payable", function (accounts) {
                             return [4 /*yield*/, ttt.MakeMove(1, { from: player1 })];
                         case 7:
                             // Make first move
-                            _j.sent();
+                            _l.sent();
                             return [4 /*yield*/, ttt.GameState()];
                         case 8:
-                            gameState = _j.sent();
+                            gameState = _l.sent();
                             assert.equal(gameState[0], "X--");
                             assert.equal(gameState[1], "---");
                             assert.equal(gameState[2], "---");
                             return [4 /*yield*/, ttt.MakeMove(2, { from: player2 })];
                         case 9:
-                            _j.sent();
+                            _l.sent();
                             return [4 /*yield*/, ttt.GameState()];
                         case 10:
-                            gameState = _j.sent();
+                            gameState = _l.sent();
                             assert.equal(gameState[0], "XO-");
                             assert.equal(gameState[1], "---");
                             assert.equal(gameState[2], "---");
                             return [4 /*yield*/, ttt.MakeMove(4, { from: player1 })];
                         case 11:
-                            _j.sent();
-                            return [4 /*yield*/, ttt.MakeMove(5, { from: player2 })];
+                            _l.sent();
+                            return [4 /*yield*/, ttt.MakeMove(5, { from: player2 })
+                                // get Balance for p1
+                            ];
                         case 12:
-                            _j.sent();
-                            return [4 /*yield*/, ttt.MakeMove(7, { from: player1 })];
+                            _l.sent();
+                            return [4 /*yield*/, checkBalance(player1)];
                         case 13:
-                            _j.sent();
-                            return [4 /*yield*/, ttt.GameState()];
+                            balance = _l.sent();
+                            // make winning move
+                            return [4 /*yield*/, ttt.MakeMove(7, { from: player1 })];
                         case 14:
-                            gameState = _j.sent();
+                            // make winning move
+                            _l.sent();
+                            return [4 /*yield*/, ttt.GameState()
+                                // expect some maneyyy
+                            ];
+                        case 15:
+                            gameState = _l.sent();
+                            // expect some maneyyy
+                            _g = assert;
+                            _h = balance;
+                            return [4 /*yield*/, checkBalance(player1)];
+                        case 16:
+                            // expect some maneyyy
+                            _g.apply(void 0, [_h < (_l.sent())]);
                             assert.equal(gameState[2], "GG WP");
                             // check for winner address
-                            _h = (_g = assert).equal;
+                            _k = (_j = assert).equal;
                             return [4 /*yield*/, ttt.GetLastWinnerAddress()];
-                        case 15:
+                        case 17:
                             // check for winner address
-                            _h.apply(_g, [_j.sent(), player1]);
+                            _k.apply(_j, [_l.sent(), player1]);
                             return [2 /*return*/];
                     }
                 });

@@ -86,6 +86,13 @@ contract TTT
         delete _player2;
 
         _playerTurn = 0;
+        Payout(_lastWinner);
+    }
+
+    function Payout(address _winner) private
+    {
+        if (!_winner.send(2 * _ticketPrice))
+            throw;
     }
 
     function MakeMove(uint8 place) public

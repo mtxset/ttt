@@ -7,6 +7,11 @@ let ttt = null;
 
 let ticketPrice =  3 * 10**15;
 
+function checkBalance(addr):number
+{
+    return web3.eth.getBalance(addr);
+}
+
 contract("TTT Payable", (accounts)=> {
 
     before(async()=>
@@ -19,14 +24,17 @@ contract("TTT Payable", (accounts)=> {
     
     contract("Players joining", ()=>
     {
-        it("2 Players should join ", async()=> 
-        {
+        it("2 Players should join and contract balance increase", async()=> 
+        {   
+            assert.equal(await checkBalance(ttt.address), 0, "Balances should be 0")
 
             await ttt.JoinGame({from: player1, value: ticketPrice});
             assert.equal(await ttt.Player1(), player1,"Addresses should be equal")
 
             await ttt.JoinGame({from: player2, value: ticketPrice});
             assert.equal(await ttt.Player2(), player2, "Addresses should be equal")
+
+            assert.equal(await checkBalance(ttt.address), ticketPrice*2, "Balances should be 0")
         });
 
         it("3 player should not be able to join", async() => {
@@ -95,10 +103,16 @@ contract("TTT Payable", (accounts)=> {
 
             await ttt.MakeMove(4, {from: player1})
             await ttt.MakeMove(5, {from: player2})
+
+            // get Balance for p1
+            let balance = await checkBalance(player1);
+
+            // make winning move
             await ttt.MakeMove(7, {from: player1})
 
             gameState = await ttt.GameState()
-
+            // expect some maneyyy
+            assert(balance < await checkBalance(player1))
             assert.equal(gameState[2], "GG WP");
 
             // check for winner address
