@@ -5,7 +5,9 @@ import * as assert from "assert"
 let player1, player2, thirdWheel;
 let ttt = null;
 
-contract("TTT", (accounts)=> {
+let ticketPrice =  3 * 10**15;
+
+contract("TTT Payable", (accounts)=> {
 
     before(async()=>
     {
@@ -20,39 +22,48 @@ contract("TTT", (accounts)=> {
         it("2 Players should join ", async()=> 
         {
 
-            await ttt.JoinGame({from: player1});
+            await ttt.JoinGame({from: player1, value: ticketPrice});
             assert.equal(await ttt.Player1(), player1,"Addresses should be equal")
 
-            await ttt.JoinGame({from: player2});
+            await ttt.JoinGame({from: player2, value: ticketPrice});
             assert.equal(await ttt.Player2(), player2, "Addresses should be equal")
         });
 
         it("3 player should not be able to join", async() => {
-            await expectThrow(ttt.JoinGame({from:thirdWheel}));
+            await expectThrow(ttt.JoinGame({from:thirdWheel,value: ticketPrice}));
 
             assert.equal(await ttt.Player1(), player1, "Addresses should be equal")
             assert.equal(await ttt.Player2(), player2, "Addresses should be equal")
         });
     })
 
-    contract("Test reset: Players joining again", ()=>
+    contract("Test join without paying, underpaying, overpaying", ()=>
     {
-        it("2 Players can join again", async()=>
+        it("Player can't join without paying", async()=>
         {
-            ttt.JoinGame({from: player1});
-            assert.equal(await ttt.Player1(), player1,"Addresses should be equal")
+            expectThrow(ttt.JoinGame({from: player1}));
+            assert.equal(await ttt.Player1(), 0,"Addresses should be equal")
+        })
 
-            ttt.JoinGame({from: player2});
-            assert.equal(await ttt.Player2(), player2, "Addresses should be equal")
+        it("Player can't join because of underpaying", async()=>
+        {
+            expectThrow(ttt.JoinGame({from: player1, value: ticketPrice - 1}));
+            assert.equal(await ttt.Player1(), 0,"Addresses should be equal")
+        })
+
+        it("Player can't join because of overpaying", async()=>
+        {
+            expectThrow(ttt.JoinGame({from: player1, value: ticketPrice + 1}));
+            assert.equal(await ttt.Player1(), 0,"Addresses should be equal")
         })
     })
 
-    contract("Full Game Sequence", async()=>
+    contract("Full Game Sequence payable", async()=>
     {
         it("Should play full game", async()=>
         {
-            await ttt.JoinGame({from: player1})
-            await ttt.JoinGame({from: player2})
+            await ttt.JoinGame({from: player1, value: ticketPrice})
+            await ttt.JoinGame({from: player2, value: ticketPrice})
 
             assert.equal(await ttt.Player1(), player1,"Addresses should be equal")
             assert.equal(await ttt.Player2(), player2,"Addresses should be equal")

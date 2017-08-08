@@ -41,7 +41,8 @@ var index_1 = require("./helpers/index");
 var assert = require("assert");
 var player1, player2, thirdWheel;
 var ttt = null;
-contract("TTT", function (accounts) {
+var ticketPrice = 3 * Math.pow(10, 15);
+contract("TTT Payable", function (accounts) {
     before(function () { return __awaiter(_this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -60,14 +61,14 @@ contract("TTT", function (accounts) {
             var _a, _b, _c, _d;
             return __generator(this, function (_e) {
                 switch (_e.label) {
-                    case 0: return [4 /*yield*/, ttt.JoinGame({ from: player1 })];
+                    case 0: return [4 /*yield*/, ttt.JoinGame({ from: player1, value: ticketPrice })];
                     case 1:
                         _e.sent();
                         _b = (_a = assert).equal;
                         return [4 /*yield*/, ttt.Player1()];
                     case 2:
                         _b.apply(_a, [_e.sent(), player1, "Addresses should be equal"]);
-                        return [4 /*yield*/, ttt.JoinGame({ from: player2 })];
+                        return [4 /*yield*/, ttt.JoinGame({ from: player2, value: ticketPrice })];
                     case 3:
                         _e.sent();
                         _d = (_c = assert).equal;
@@ -82,7 +83,7 @@ contract("TTT", function (accounts) {
             var _a, _b, _c, _d;
             return __generator(this, function (_e) {
                 switch (_e.label) {
-                    case 0: return [4 /*yield*/, index_1.expectThrow(ttt.JoinGame({ from: thirdWheel }))];
+                    case 0: return [4 /*yield*/, index_1.expectThrow(ttt.JoinGame({ from: thirdWheel, value: ticketPrice }))];
                     case 1:
                         _e.sent();
                         _b = (_a = assert).equal;
@@ -98,38 +99,61 @@ contract("TTT", function (accounts) {
             });
         }); });
     });
-    contract("Test reset: Players joining again", function () {
-        it("2 Players can join again", function () { return __awaiter(_this, void 0, void 0, function () {
-            var _a, _b, _c, _d;
-            return __generator(this, function (_e) {
-                switch (_e.label) {
+    contract("Test join without paying, underpaying, overpaying", function () {
+        it("Player can't join without paying", function () { return __awaiter(_this, void 0, void 0, function () {
+            var _a, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
                     case 0:
-                        ttt.JoinGame({ from: player1 });
+                        index_1.expectThrow(ttt.JoinGame({ from: player1 }));
                         _b = (_a = assert).equal;
                         return [4 /*yield*/, ttt.Player1()];
                     case 1:
-                        _b.apply(_a, [_e.sent(), player1, "Addresses should be equal"]);
-                        ttt.JoinGame({ from: player2 });
-                        _d = (_c = assert).equal;
-                        return [4 /*yield*/, ttt.Player2()];
-                    case 2:
-                        _d.apply(_c, [_e.sent(), player2, "Addresses should be equal"]);
+                        _b.apply(_a, [_c.sent(), 0, "Addresses should be equal"]);
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        it("Player can't join because of underpaying", function () { return __awaiter(_this, void 0, void 0, function () {
+            var _a, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        index_1.expectThrow(ttt.JoinGame({ from: player1, value: ticketPrice - 1 }));
+                        _b = (_a = assert).equal;
+                        return [4 /*yield*/, ttt.Player1()];
+                    case 1:
+                        _b.apply(_a, [_c.sent(), 0, "Addresses should be equal"]);
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        it("Player can't join because of overpaying", function () { return __awaiter(_this, void 0, void 0, function () {
+            var _a, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        index_1.expectThrow(ttt.JoinGame({ from: player1, value: ticketPrice + 1 }));
+                        _b = (_a = assert).equal;
+                        return [4 /*yield*/, ttt.Player1()];
+                    case 1:
+                        _b.apply(_a, [_c.sent(), 0, "Addresses should be equal"]);
                         return [2 /*return*/];
                 }
             });
         }); });
     });
-    contract("Full Game Sequence", function () { return __awaiter(_this, void 0, void 0, function () {
+    contract("Full Game Sequence payable", function () { return __awaiter(_this, void 0, void 0, function () {
         var _this = this;
         return __generator(this, function (_a) {
             it("Should play full game", function () { return __awaiter(_this, void 0, void 0, function () {
                 var _a, _b, _c, _d, _e, _f, gameState, _g, _h;
                 return __generator(this, function (_j) {
                     switch (_j.label) {
-                        case 0: return [4 /*yield*/, ttt.JoinGame({ from: player1 })];
+                        case 0: return [4 /*yield*/, ttt.JoinGame({ from: player1, value: ticketPrice })];
                         case 1:
                             _j.sent();
-                            return [4 /*yield*/, ttt.JoinGame({ from: player2 })];
+                            return [4 /*yield*/, ttt.JoinGame({ from: player2, value: ticketPrice })];
                         case 2:
                             _j.sent();
                             _b = (_a = assert).equal;
